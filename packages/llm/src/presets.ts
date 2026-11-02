@@ -20,7 +20,7 @@ export interface Preset {
 // Default models change often; override per provider with `aise login --model` or `aise models`.
 export const PRESETS: Preset[] = [
   { id: 'anthropic', name: 'Anthropic Claude', kind: 'anthropic', envKey: 'ANTHROPIC_API_KEY', keyPrefix: 'sk-ant-', defaultModel: 'claude-opus-5-5' },
-  { id: 'nvidia', name: 'NVIDIA NIM', kind: 'openai-compatible', baseURL: 'https://integrate.api.nvidia.com/v1', envKey: 'NVIDIA_API_KEY', keyPrefix: 'nvapi-', defaultModel: 'nvidia/nemotron-3-super-120b-a12b' },
+  { id: 'nvidia', name: 'NVIDIA NIM', kind: 'openai-compatible', baseURL: 'https://integrate.api.nvidia.com/v1', envKey: 'NVIDIA_API_KEY', keyPrefix: 'nvapi-', defaultModel: 'z-ai/glm-5.3-flash' },
   { id: 'openrouter', name: 'OpenRouter', kind: 'openai-compatible', baseURL: 'https://openrouter.ai/api/v1', envKey: 'OPENROUTER_API_KEY', keyPrefix: 'sk-or-', defaultModel: 'openrouter/auto' },
   { id: 'groq', name: 'Groq', kind: 'openai-compatible', baseURL: 'https://api.groq.com/openai/v1', envKey: 'GROQ_API_KEY', keyPrefix: 'gsk_', defaultModel: 'openai/gpt-oss-120b' },
   { id: 'gemini', name: 'Google Gemini', kind: 'openai-compatible', baseURL: 'https://generativelanguage.googleapis.com/v1beta/openai/', envKey: 'GEMINI_API_KEY', keyPrefix: 'AIza', defaultModel: 'gemini-2.5-flash' },

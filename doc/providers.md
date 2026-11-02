@@ -7,7 +7,7 @@ AISE 不綁定任何一家模型廠商：給一把 API key 就能用。
 | id | Provider | Key 前綴 | 環境變數 | 預設模型 |
 |----|----------|----------|----------|----------|
 | `anthropic` | Anthropic Claude | `sk-ant-` | `ANTHROPIC_API_KEY` | `claude-opus-5-5` |
-| `nvidia` | NVIDIA NIM | `nvapi-` | `NVIDIA_API_KEY` | `nvidia/nemotron-3-super-120b-a12b` |
+| `nvidia` | NVIDIA NIM | `nvapi-` | `NVIDIA_API_KEY` | `z-ai/glm-5.3-flash` |
 | `openrouter` | OpenRouter | `sk-or-` | `OPENROUTER_API_KEY` | `openrouter/auto` |
 | `groq` | Groq | `gsk_` | `GROQ_API_KEY` | `openai/gpt-oss-120b` |
 | `gemini` | Google Gemini | `AIza` | `GEMINI_API_KEY` | `gemini-2.5-flash` |
@@ -17,7 +17,7 @@ AISE 不綁定任何一家模型廠商：給一把 API key 就能用。
 | `custom` | 任何 OpenAI 相容服務（vLLM、自架 NIM…） | — | — | 需指定 |
 | `mock` | 離線測試用 | 不需要 key | — | — |
 
-各家模型清單變動很快，預設模型不一定是最新的。用 `aise models` 查詢可用模型，再用 `aise use <id> --model <model>` 換掉。工具呼叫（tool calling）需要模型支援；NVIDIA 上請挑標示支援 function calling 的模型。
+各家模型清單變動很快，預設模型不一定是最新的。用 `aise models` 查詢可用模型，再用 `aise use <id> --model <model>` 換掉。工具呼叫（tool calling）需要模型支援；NVIDIA 上請挑標示支援 function calling 的模型；`z-ai/glm-5.3-flash` 已實測可用（2026-11-03）。
 
 ## 使用方式
 
