@@ -25,6 +25,7 @@ AISE 的目標是把 **需求 → 設計 → 實作 → 測試 → 審查 → �
 | Traceability | 每一行程式都能追到需求，每個需求都能找到程式與測試 |
 | Local-first | 所有產物都是 repo 裡的純文字檔（Markdown / YAML / 程式碼），可 git diff、可 review |
 | Model-agnostic | 透過 Provider 介面支援 Claude、本地模型等，不綁定單一廠商 |
+| Cloud & Mobile | 可架在雲端機器上，用手機下指令、核准、看結果（見 [cloud.md](cloud.md)） |
 
 ## 3. 開發流程
 
@@ -49,10 +50,12 @@ flowchart LR
 ```mermaid
 flowchart TB
     subgraph UI[介面層]
+        PWA[手機 PWA]
         CLI[aise CLI]
         VSC[VS Code 擴充]
-        WEB[Web 儀表板]
     end
+
+    SRV[AISE Server<br/>API + 任務佇列 + 推播]
 
     subgraph CORE[核心層]
         ORCH[Agent 編排器]
@@ -76,7 +79,8 @@ flowchart TB
         TOOLS[工具<br/>git / test runner / linter]
     end
 
-    UI --> CORE
+    UI --> SRV
+    SRV --> CORE
     ORCH --> AGENTS
     AGENTS --> CTX
     CTX --> IDX
@@ -89,6 +93,7 @@ flowchart TB
 
 | 模組 | 職責 |
 |------|------|
+| **AISE Server** | 常駐服務；所有客戶端（手機、CLI、VS Code）都透過它操作，任務在伺服器端持續執行 |
 | **Agent 編排器** | 依流程階段呼叫對應 Agent，管理狀態機、重試與人類核准點 |
 | **上下文建構器** | 依任務從索引挑出相關程式、規格、ADR，控制 token 預算 |
 | **追溯引擎** | 解析 `@req REQ-012` 之類的標記，建立 需求↔規格↔測試↔程式 的關聯圖 |
@@ -144,8 +149,11 @@ aise/
 │   ├── indexer/     # tree-sitter + SQLite 索引
 │   ├── llm/         # Provider 介面
 │   ├── mcp-server/  # 以 MCP 暴露工具
+│   ├── server/      # AISE Server：API、任務佇列、工作區容器、推播
+│   ├── web/         # 手機優先的 PWA
 │   ├── cli/         # aise 指令
 │   └── vscode/      # VS Code 擴充
+├── deploy/          # docker compose、安裝腳本、雲端平台範本
 ├── examples/        # 示範專案（todo-api 等）
 ├── doc/             # 設計文件、ADR
 └── README.md
@@ -159,9 +167,11 @@ gantt
     dateFormat YYYY-MM-DD
     axisFormat %m/%d
     section M0 基礎
-    monorepo、LLM Provider、CLI 骨架 :m0, 2026-11-04, 14d
+    monorepo、LLM Provider、Server、CLI :m0, 2026-11-04, 14d
+    section M0.5 雲端
+    工作區容器、手機 PWA、推播、部署   :m05, after m0, 21d
     section M1 追溯
-    規格格式、標記解析、aise trace    :m1, after m0, 14d
+    規格格式、標記解析、aise trace    :m1, after m05, 14d
     section M2 測試優先
     規格→測試→實作→驗證迴圈          :m2, after m1, 21d
     section M3 索引
@@ -169,19 +179,20 @@ gantt
     section M4 審查
     PR 審查 Agent、ADR 產生            :m4, after m3, 14d
     section M5 整合
-    MCP Server、VS Code 擴充、儀表板   :m5, after m4, 28d
+    MCP、VS Code、Telegram、排程       :m5, after m4, 28d
 ```
 
 | 里程碑 | 交付物 | 完成標準 |
 |--------|--------|----------|
-| **M0 基礎** | `aise init`、`aise ask` | 能用 Claude 回答關於 repo 的問題 |
+| **M0 基礎** | AISE Server、`aise init`、`aise ask` | 能用 Claude 回答關於 repo 的問題；任務在伺服器端執行 |
+| **M0.5 雲端** | 手機 PWA、工作區容器、`docker compose` 部署 | 只用手機就能在 VPS 上架好、下任務、收推播、核准 |
 | **M1 追溯** | `aise trace` | 對範例專案輸出 需求↔測試↔程式 矩陣 |
 | **M2 測試優先** | `aise implement SPEC-xxx` | 從規格自動產生測試與實作，測試全綠才結束 |
 | **M3 索引** | `aise index`、`aise context` | 10 萬行專案索引 < 1 分鐘，上下文命中率可量測 |
 | **M4 審查** | `aise review` | 對 git diff 給出對照規格的審查意見 |
-| **M5 整合** | MCP Server + VS Code 擴充 | Claude Code 等客戶端可直接呼叫 AISE 工具 |
+| **M5 整合** | MCP Server、VS Code 擴充、Telegram Bot、排程任務 | Claude Code 等客戶端可直接呼叫 AISE 工具 |
 
-**MVP = M0 + M1 + M2**：約 7 週，就能展示「寫規格 → AI 自動完成並通過測試」的核心價值。
+**MVP = M0 + M0.5 + M1 + M2**：約 10 週，就能只用手機展示「說出需求 → AI 自動完成並通過測試 → 核准合併」。
 
 ## 8. 成效評估
 
@@ -211,5 +222,5 @@ gantt
 
 1. 確認技術選型（TypeScript / pnpm monorepo）
 2. 撰寫 `doc/adr/0001-spec-format.md`，定稿規格檔格式
-3. 建立 M0 骨架：`packages/llm`、`packages/cli`
+3. 建立 M0 骨架：`packages/llm`、`packages/server`、`packages/cli`
 4. 建立 `examples/todo-api` 作為貫穿全程的示範與評測專案
