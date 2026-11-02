@@ -1,0 +1,16 @@
+{
+  "name": "@aise/cli",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@aise/llm": "workspace:*",
+    "@aise/server": "workspace:*"
+  },
+  "bin": {
+    "aise": "./bin/aise.ts"
+  }
+}

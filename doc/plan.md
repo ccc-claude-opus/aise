@@ -134,7 +134,10 @@ test('locks account after 5 failed attempts', () => { ... })
 | 語言 | TypeScript（Node.js） | 生態系完整，CLI 與 VS Code 擴充可共用程式碼 |
 | 程式解析 | tree-sitter | 多語言 AST，速度快 |
 | 索引儲存 | SQLite（含向量擴充） | 單檔、免架伺服器、符合 local-first |
-| LLM | Anthropic SDK 為主，Provider 介面可擴充 | 工具呼叫與長上下文能力強 |
+| LLM | 中立 Provider 介面：Anthropic SDK + OpenAI 相容（NVIDIA、OpenRouter、Groq、Gemini、DeepSeek、Ollama…） | 給 API key 就能用，見 [providers.md](providers.md) |
+| 執行 | Node.js 24 直接執行 TypeScript（type stripping） | 免編譯步驟 |
+| 任務佇列 | `node:sqlite` | 內建、免原生套件 |
+| 即時串流 | SSE + `Last-Event-ID` 續傳 | 手機斷線重連不漏事件 |
 | Agent 協定 | MCP（Model Context Protocol） | 讓工具可被其他 AI 客戶端重用 |
 | 測試 | Vitest | 快、與 TS 整合佳 |
 | 套件管理 | pnpm monorepo | 多套件共用 |
@@ -184,7 +187,7 @@ gantt
 
 | 里程碑 | 交付物 | 完成標準 |
 |--------|--------|----------|
-| **M0 基礎** | AISE Server、`aise init`、`aise ask` | 能用 Claude 回答關於 repo 的問題；任務在伺服器端執行 |
+| **M0 基礎** ✅ | AISE Server、`aise login`、`aise ask` | 能用任一 provider 回答關於 repo 的問題；任務在伺服器端執行 |
 | **M0.5 雲端** | 手機 PWA、工作區容器、`docker compose` 部署 | 只用手機就能在 VPS 上架好、下任務、收推播、核准 |
 | **M1 追溯** | `aise trace` | 對範例專案輸出 需求↔測試↔程式 矩陣 |
 | **M2 測試優先** | `aise implement SPEC-xxx` | 從規格自動產生測試與實作，測試全綠才結束 |

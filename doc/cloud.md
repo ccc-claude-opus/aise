@@ -40,7 +40,7 @@ flowchart TB
 
     subgraph CLOUD[雲端機器]
         GW[閘道<br/>HTTPS + 認證]
-        API[AISE Server<br/>REST + WebSocket]
+        API[AISE Server<br/>REST + SSE]
         Q[任務佇列<br/>SQLite]
         WK[Worker<br/>Agent 編排器]
         SCHED[排程器]
@@ -55,7 +55,7 @@ flowchart TB
     LLM[(LLM API<br/>Claude 等)]
     GH[(GitHub)]
 
-    PWA <-->|HTTPS / WSS| GW
+    PWA <-->|HTTPS / SSE| GW
     TG <--> API
     GW --> API
     API --> Q
@@ -71,7 +71,7 @@ flowchart TB
 
 | 元件 | 職責 |
 |------|------|
-| **AISE Server** | 對外 API，管理專案、任務、使用者、推播訂閱；WebSocket 即時串流 Agent 進度 |
+| **AISE Server** | 對外 API，管理專案、任務、使用者、推播訂閱；SSE 即時串流 Agent 進度 |
 | **任務佇列** | 任務持久化；伺服器重開機後能從中斷點繼續 |
 | **Worker** | 執行 [plan.md](plan.md) 中的 Agent 流程；遇到核准點就暫停任務，並發出通知 |
 | **工作區容器** | 每個專案一個 Docker 容器，隔離檔案系統與網路，限制 CPU / 記憶體；Agent 只能在容器內執行指令 |
@@ -149,7 +149,7 @@ sequenceDiagram
 | 項目 | 選擇 | 理由 |
 |------|------|------|
 | Server | Node.js + Fastify | 與 core 同語言 |
-| 即時串流 | WebSocket（斷線自動重連、補傳事件） | 手機網路不穩 |
+| 即時串流 | SSE + `Last-Event-ID`（斷線自動重連、補傳事件） | 手機網路不穩；比 WebSocket 簡單，走一般 HTTPS |
 | 前端 | PWA（Svelte 或 React）+ Web Push | 免上架、可推播（iOS 16.4+ 加入主畫面後支援） |
 | 容器 | Docker（之後可換 gVisor / Firecracker 加強隔離） | 普及、好部署 |
 | 終端機 | xterm.js | 標準方案 |

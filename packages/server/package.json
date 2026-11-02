@@ -1,0 +1,14 @@
+{
+  "name": "@aise/server",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@aise/core": "workspace:*",
+    "@aise/llm": "workspace:*",
+    "fastify": "^5.12.7"
+  }
+}
